@@ -1,74 +1,102 @@
 using Microsoft.AspNetCore.Mvc;
-using LibraryApplication.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using LibraryApplication.Models;
+
 namespace LibraryApplication.Controllers
 {
     public class BooksController : Controller
     {
-        // Verileri buradan ekliyoruz.
-        private static readonly List<Book> _books = new List<Book>
+        private static readonly List<Category> _kategoriler = new List<Category>
         {
-            new Book { Id = 1, Title = "Çalıkuşu", Author = "Reşat Nuri Güntekin", Price = 150m, Stock = 100 },
-            new Book { Id = 2, Title = "Bir İdam Mahkumunun Son Günü", Author = "Victor Hugo", Price = 105.50m, Stock = 50 },
-            new Book { Id = 3, Title = "Beyaz Leke", Author = "Aslı Arslan", Price = 347.40m, Stock = 300 }
+            new Category { Id = 1, Name = "Roman" },
+            new Category { Id = 2, Name = "Hikaye" },
+            new Category { Id = 3, Name = "Şiir" },
+            new Category { Id = 4, Name = "Deneme" },
+            new Category { Id = 5, Name = "Bilim Kurgu" }
         };
-        private static int _nextId = 4;
+
+        private static readonly List<Book> _kitaplar = new List<Book>
+        {
+            new Book { Id = 1, Baslik = "Çalıkuşu", Yazar = "Reşat Nuri Güntekin", Fiyat = 150m, Stok = 100, CategoryId = 1 },
+            new Book { Id = 2, Baslik = "Bir İdam Mahkumunun Son Günü", Yazar = "Victor Hugo", Fiyat = 105.50m, Stok = 50, CategoryId = 2 },
+            new Book { Id = 3, Baslik = "Beyaz Leke", Yazar = "Aslı Arslan", Fiyat = 347.40m, Stok = 300, CategoryId = 1 }
+        };
+        private static int _sonrakiId = 4;
 
         public IActionResult Index()
         {
-            return View(_books);
-        }
+            foreach (var kitap in _kitaplar)
+            {
+                kitap.Category = _kategoriler.FirstOrDefault(k => k.Id == kitap.CategoryId);
+            }
+
+            return View(_kitaplar);
+        }
+
         public IActionResult Add()
         {
+            ViewBag.Categories = new SelectList(_kategoriler, "Id", "Name");
             return View(new Book());
-        }
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Add(Book book)
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.Categories = new SelectList(_kategoriler, "Id", "Name", book.CategoryId);
                 return View(book);
-            }
-            book.Id = _nextId++;
-            _books.Add(book);
+            }
+
+            book.Id = _sonrakiId++;
+            _kitaplar.Add(book);
             TempData["Success"] = "Kitap başarıyla eklendi.";
             return RedirectToAction(nameof(Index));
-        }
+        }
+
         public IActionResult Update(int id)
         {
-            var book = _books.FirstOrDefault(b => b.Id == id);
-            if (book == null) return NotFound();
-            return View(book);
-        }
+            var kitap = _kitaplar.FirstOrDefault(k => k.Id == id);
+            if (kitap == null) return NotFound();
+
+            ViewBag.Categories = new SelectList(_kategoriler, "Id", "Name", kitap.CategoryId);
+            return View(kitap);
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Update(int id, Book book)
+        public IActionResult Update(Book updatedBook)
         {
-            if (id != book.Id) return BadRequest();
-
             if (!ModelState.IsValid)
             {
-                return View(book);
-            }
-            var existing = _books.FirstOrDefault(b => b.Id == id);
-            if (existing == null) return NotFound();
+                ViewBag.Categories = new SelectList(_kategoriler, "Id", "Name", updatedBook.CategoryId);
+                return View(updatedBook);
+            }
 
-            existing.Title = book.Title;
-            existing.Author = book.Author;
-            existing.Price = book.Price;
-            existing.Stock = book.Stock;
+            var mevcutKitap = _kitaplar.FirstOrDefault(k => k.Id == updatedBook.Id);
+            if (mevcutKitap == null) return NotFound();
+
+            mevcutKitap.Baslik = updatedBook.Baslik;
+            mevcutKitap.Yazar = updatedBook.Yazar;
+            mevcutKitap.Fiyat = updatedBook.Fiyat;
+            mevcutKitap.Stok = updatedBook.Stok;
+            mevcutKitap.CategoryId = updatedBook.CategoryId;
 
             TempData["Success"] = "Kitap başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
-        }
-        public IActionResult Delete(int id)
-        {
-            var book = _books.FirstOrDefault(b => b.Id == id);
-            if (book == null) return NotFound();
+        }
 
-            _books.Remove(book);
+        public IActionResult Remove(int id)
+        {
+            var kitap = _kitaplar.FirstOrDefault(k => k.Id == id);
+            if (kitap == null) return NotFound();
+
+            _kitaplar.Remove(kitap);
             TempData["Success"] = "Kitap başarıyla silindi.";
             return RedirectToAction(nameof(Index));
         }
     }
-}
+}

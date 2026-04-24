@@ -7,27 +7,35 @@
     <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
-        <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger small"></span>
+        <label asp-for="Baslik" class="form-label"></label>
+        <input asp-for="Baslik" class="form-control" />
+        <span asp-validation-for="Baslik" class="text-danger small"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Author" class="form-label"></label>
-        <input asp-for="Author" class="form-control" />
-        <span asp-validation-for="Author" class="text-danger small"></span>
+        <label asp-for="Yazar" class="form-label"></label>
+        <input asp-for="Yazar" class="form-control" />
+        <span asp-validation-for="Yazar" class="text-danger small"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Price" class="form-label"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger small"></span>
+        <label asp-for="Fiyat" class="form-label"></label>
+        <input asp-for="Fiyat" class="form-control" />
+        <span asp-validation-for="Fiyat" class="text-danger small"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Stock" class="form-label"></label>
-        <input asp-for="Stock" class="form-control" />
-        <span asp-validation-for="Stock" class="text-danger small"></span>
+        <label asp-for="Stok" class="form-label"></label>
+        <input asp-for="Stok" class="form-control" />
+        <span asp-validation-for="Stok" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+            <option value="">-- Kategori Seçiniz --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger small"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Güncelle</button>

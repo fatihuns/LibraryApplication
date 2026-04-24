@@ -8,16 +8,26 @@ namespace LibraryApplication.Models
 
         [Required(ErrorMessage = "Başlık gerekli.")]
         [StringLength(150, MinimumLength = 2, ErrorMessage = "Başlık 2 ile 150 karakter arasında olmalı.")]
-        public string Title { get; set; }
+        [Display(Name = "Başlık")]
+        public string Baslik { get; set; }
 
         [Required(ErrorMessage = "Yazar gerekli.")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Yazar adı 2 ile 100 karakter arasında olmalı.")]
-        public string Author { get; set; }
+        [Display(Name = "Yazar")]
+        public string Yazar { get; set; }
 
         [Range(0.01, double.MaxValue, ErrorMessage = "Fiyat 0'dan büyük olmalı.")]
-        public decimal Price { get; set; }
+        [Display(Name = "Fiyat")]
+        public decimal Fiyat { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Stok 0 veya daha büyük olmalı.")]
-        public int Stock { get; set; }
+        [Display(Name = "Stok")]
+        public int Stok { get; set; }
+
+        [Required(ErrorMessage = "Kategori seçimi gerekli.")]
+        [Display(Name = "Kategori")]
+        public int CategoryId { get; set; }
+
+        public Category? Category { get; set; }
     }
 }

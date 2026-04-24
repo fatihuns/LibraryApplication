@@ -21,7 +21,6 @@ namespace LibraryApplication
             app.UseRouting();
 
             app.UseAuthorization();
-
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",

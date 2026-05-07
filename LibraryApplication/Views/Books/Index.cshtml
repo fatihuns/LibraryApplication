@@ -1,4 +1,4 @@
-@model IEnumerable<LibraryApplication.Models.Book>
+@model LibraryApplication.Models.BookListViewModel
 
 <h2>Kitaplar</h2>
 
@@ -10,6 +10,78 @@
 <p>
     <a asp-action="Add" class="btn btn-primary">Yeni Kitap Ekle</a>
 </p>
+
+<form method="get" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="aramaMetni" value="@Model.AramaMetni"
+               class="form-control" placeholder="Kitap adı veya yazar ara..." />
+    </div>
+
+    <div class="col-md-3">
+        @{
+            var kategoriListesi = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                Model.Kategoriler, "Id", "Name", Model.SeciliKategoriId);
+        }
+        <select name="seciliKategoriId" class="form-select">
+            <option value="">-- Tüm Kategoriler --</option>
+            @foreach (var secenek in kategoriListesi)
+            {
+                <option value="@secenek.Value" selected="@secenek.Selected">@secenek.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        @{
+            var siralamaAlanlari = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                new[] {
+                    new { Deger = "baslik", Etiket = "Başlık" },
+                    new { Deger = "yazar",  Etiket = "Yazar"  },
+                    new { Deger = "fiyat",  Etiket = "Fiyat"  },
+                    new { Deger = "stok",   Etiket = "Stok"   }
+                }, "Deger", "Etiket", Model.SiralamaAlani);
+        }
+        <select name="siralamaAlani" class="form-select">
+            @foreach (var secenek in siralamaAlanlari)
+            {
+                <option value="@secenek.Value" selected="@secenek.Selected">@secenek.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        @{
+            var siralamaDuzenList = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                new[] {
+                    new { Deger = "asc",  Etiket = "Artan ↑"  },
+                    new { Deger = "desc", Etiket = "Azalan ↓" }
+                }, "Deger", "Etiket", Model.SiralamaDuzeni);
+        }
+        <select name="siralamaDuzeni" class="form-select">
+            @foreach (var secenek in siralamaDuzenList)
+            {
+                <option value="@secenek.Value" selected="@secenek.Selected">@secenek.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-1">
+        <button type="submit" class="btn btn-secondary w-100">Uygula</button>
+    </div>
+</form>
+
+@{
+    int toplamKitap   = Model.Kitaplar.Count();
+    bool filtreAktif  = !string.IsNullOrWhiteSpace(Model.AramaMetni) || Model.SeciliKategoriId.HasValue;
+}
+
+@if (filtreAktif)
+{
+    <div class="alert alert-info py-2">
+        <strong>@toplamKitap</strong> kitap bulundu.
+        <a asp-action="Index" class="ms-2 btn btn-sm btn-outline-secondary">Filtreyi Temizle</a>
+    </div>
+}
 
 <table class="table table-striped table-bordered">
     <thead class="table-light">
@@ -23,19 +95,28 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (!Model.Kitaplar.Any())
         {
             <tr>
-                <td>@item.Baslik</td>
-                <td>@item.Yazar</td>
-                <td>@item.Category?.Name</td>
-                <td class="text-end">@item.Fiyat.ToString("0.00")</td>
-                <td class="text-end">@item.Stok</td>
-                <td>
-                    <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Düzenle</a>
-                    <a asp-action="Remove" asp-route-id="@item.Id" class="btn btn-sm btn-danger" onclick="return confirm('Silmek istediğinizden emin misiniz?');">Sil</a>
-                </td>
+                <td colspan="6" class="text-center text-muted">Arama kriterlerine uygun kitap bulunamadı.</td>
             </tr>
+        }
+        else
+        {
+            @foreach (var item in Model.Kitaplar)
+            {
+                <tr>
+                    <td>@item.Baslik</td>
+                    <td>@item.Yazar</td>
+                    <td>@item.Category?.Name</td>
+                    <td class="text-end">@item.Fiyat.ToString("0.00")</td>
+                    <td class="text-end">@item.Stok</td>
+                    <td>
+                        <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Düzenle</a>
+                        <a asp-action="Remove" asp-route-id="@item.Id" class="btn btn-sm btn-danger" onclick="return confirm('Silmek istediğinizden emin misiniz?');">Sil</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

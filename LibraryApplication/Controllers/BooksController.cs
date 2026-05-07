@@ -23,14 +23,51 @@ namespace LibraryApplication.Controllers
         };
         private static int _sonrakiId = 4;
 
-        public IActionResult Index()
+        public IActionResult Index(string? aramaMetni, int? seciliKategoriId, string siralamaAlani = "baslik", string siralamaDuzeni = "asc")
         {
             foreach (var kitap in _kitaplar)
             {
                 kitap.Category = _kategoriler.FirstOrDefault(k => k.Id == kitap.CategoryId);
             }
 
-            return View(_kitaplar);
+            IEnumerable<Book> sonuc = _kitaplar;
+
+            if (!string.IsNullOrWhiteSpace(aramaMetni))
+            {
+                sonuc = sonuc.Where(k =>
+                    k.Baslik.Contains(aramaMetni, StringComparison.OrdinalIgnoreCase) ||
+                    k.Yazar.Contains(aramaMetni, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (seciliKategoriId.HasValue)
+            {
+                sonuc = sonuc.Where(k => k.CategoryId == seciliKategoriId.Value);
+            }
+
+            sonuc = (siralamaAlani, siralamaDuzeni) switch
+            {
+                ("baslik",  "asc")  => sonuc.OrderBy(k => k.Baslik),
+                ("baslik",  "desc") => sonuc.OrderByDescending(k => k.Baslik),
+                ("yazar",   "asc")  => sonuc.OrderBy(k => k.Yazar),
+                ("yazar",   "desc") => sonuc.OrderByDescending(k => k.Yazar),
+                ("fiyat",   "asc")  => sonuc.OrderBy(k => k.Fiyat),
+                ("fiyat",   "desc") => sonuc.OrderByDescending(k => k.Fiyat),
+                ("stok",    "asc")  => sonuc.OrderBy(k => k.Stok),
+                ("stok",    "desc") => sonuc.OrderByDescending(k => k.Stok),
+                _                   => sonuc.OrderBy(k => k.Baslik)
+            };
+
+            var model = new BookListViewModel
+            {
+                Kitaplar        = sonuc,
+                AramaMetni      = aramaMetni,
+                SeciliKategoriId = seciliKategoriId,
+                SiralamaAlani   = siralamaAlani,
+                SiralamaDuzeni  = siralamaDuzeni,
+                Kategoriler     = _kategoriler
+            };
+
+            return View(model);
         }
 
         public IActionResult Add()
